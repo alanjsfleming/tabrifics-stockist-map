@@ -1,17 +1,17 @@
 # Tabrifics Stockist Map
-Shopify Liquid Element snippet to display interactive map of Tabrifics stockists
+Shopify Liquid Element snippet to display an interactive map of Tabrifics stockist locations. The map fetches stockist data from a publicly shared Google Sheet, allowing for easy updating of stockist locations.
 
-Data is fetched from a Google Sheet published to the web containing the stockist data.
+## Features
+- Interactive map with markers for each stockist location
+- Real-time data fetched from a Google Sheet
+- Easy integratin into Shopify with Liquid
+- Can use custom map tiles.
 
-Used [PapaParse and instructions from Tabletop](https://github.com/jsoma/tabletop) to fetch data from Google Sheets.
+## Setup
+Follow these steps to setup the stockist map on your Shopify store.
 
-### Setup
-Just copy paste the contents of example.html into a liquid element, and add your Google Sheet public URL to the `publicSpreadsheetUrl` variable.
-
-stockists.html uses MapTiler tiles, if you want to use this then you just need to replace YOURKEYHERE with your MapTiler API key in the `maptilerAPIkey` variable.
-
-### Public Google Sheet
-The Google Sheet should have the following columns:
+### 1. Prepare Google Sheet
+Create a Google Sheet with the following columns:
 - name
 - address
 - lat
@@ -22,6 +22,22 @@ Then publish the sheet to the web by going to File > Share > Publish to web
 
 Choose Sheet1 instead of entire document, and choose Comma Separated Values (.csv) as the format.
 
-Copy this link and replace YOURURLHERE in the `publicSpreadsheetUrl` variable in the liquid element.
+Copy the link given to you after publishing.
 
-To keep stockist list up to date, just add, edit or remove entries to the linked Google Sheet.
+### 2. Setup Liquid
+Copy contents of `example.html` into a new liquid element in Shopify. 
+
+Replace YOURURLHERE in the `publicSpreadseetUrl` variable with the URL copied from your published Google Sheet.
+
+### 3. Custom Map Tiles
+`stockists.html` uses MapTiler tiles, if you want to use this then you just need to replace YOURKEYHERE with your MapTiler API key in the `maptilerAPIkey` variable.
+
+[Read more about using custom map tiles with MapTiler](https://docs.maptiler.com/leaflet/examples/raster-tiles-in-leaflet-js/)
+
+## Data Fetching
+
+The stockist data is fetched from the Google Sheet using the [PapaParse library](https://github.com/mholt/PapaParse). The method to fetch the Google Sheets data was used from this [Tabletop.js](https://github.com/jsoma/tabletop) page.
+
+## Maintaining Stockist Data
+
+To update stockist data, simply update the Google Sheet. The map will automatically update with the new data without any need for manual updates in Shopify.
