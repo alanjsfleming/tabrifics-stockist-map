@@ -200,6 +200,7 @@
           .on('add', function() {
             if (this._icon) this._icon.classList.add("huechange");
           });
+        stockist.marker = marker;
         markers.addLayer(marker);
       });
       map.addLayer(markers);
@@ -212,10 +213,17 @@
       var bounds = map.getBounds();
       var visibleStockists = stockists.filter(stockist => bounds.contains(L.latLng(stockist.lat, stockist.lng)));
   
-      visibleStockists.forEach(function(stockist) {
+      visibleStockists.forEach(function(stockist,index) {
         var element = document.createElement('div');
         element.innerHTML = `<strong>${stockist.name}</strong><p>${stockist.address}</p>`;
         element.classList.add("stockist-element");
+      
+        element.addEventListener('click',function(){
+          if (stockist.marker) {
+            map.setView(stockist.marker.getLatLng(),14);
+            stockist.marker.openPopup();
+          }
+        })
         stockistListElement.appendChild(element);
         var divider = document.createElement('hr');
         stockistListElement.appendChild(divider);
@@ -228,7 +236,7 @@
   
     var stockists = []; // Initialize the stockists array
     // The "Publish To web CSV link" from Google Sheets
-    var publicSpreadsheetUrl = "YOUR URL HERE"
+    var publicSpreadsheetUrl = "";
     
     function init() {
       Papa.parse(publicSpreadsheetUrl, {
