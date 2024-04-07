@@ -1,0 +1,279 @@
+<style>
+    #tabrificsMap {
+      height: 500px;
+    }
+  
+    #map {
+      height: 350px;
+    }
+    
+    .stockist-element {
+      padding-top: 15px;
+      padding-bottom: 0px;
+    }
+    
+    hr {
+      margin:0;
+      padding:0;
+    }
+  
+    .huechange {
+      filter: hue-rotate(211deg) saturate(18) brightness(0.9) contrast(1.1);
+    }
+  
+    .leaflet-popup-content-wrapper {
+      background-color: #fef9ec !important;
+      border-radius: 3px !important;
+      color: #e9aa01 !important;
+    }
+  
+    .leaflet-popup-close-button {
+      color: #e9aa01 !important;
+    }
+  
+    .leaflet-popup-tip {
+      background-color: #fef9ec !important;
+    }
+  
+    .leaflet-popup-content {
+      font-size: 14px;
+    }
+  
+    .leaflet-control-zoom a {
+      background-color: #fef9ec !important;
+      /* Your desired background color */
+      color: #e9aa01 !important;
+      /* Adjusts the color of the icons, if needed */
+    }
+  
+    .container {
+      display: flex;
+      height: 500px;
+      max-width: 125rem;
+      margin: 0 auto;
+    }
+  
+    #stockistList {
+      width: 30%;
+      /* Adjust width as needed */
+      display:flex;
+      height:500px;
+      flex-direction:column;
+      /* Makes the list scrollable */
+      border-right: 1px solid #ccc;
+      /* Visual separation from the map */
+      padding: 0px 10px 0px 10px;
+      min-width:30%;
+    }
+    
+    #stockistListResults {
+      overflow-y:auto;
+     
+      flex-grow:1;
+    }
+  
+    #tabrificsMap {
+      flex-grow: 1;
+      /* Adjust width as needed */
+      height: 100%;
+    }
+  
+    @media (max-width: 950px) {
+      .container {
+        flex-direction: column-reverse;
+        height: auto;
+        /* Adjust the height to accommodate the stacked layout */
+      }
+      
+      #stockistList {
+        padding:10px;
+      }
+  
+      #stockistList,
+      #tabrificsMap {
+        width: 100%;
+        /* Make both children take the full container width */
+        height: 50vh;
+        
+        /* Optional: Adjust the height of each child if needed */
+      }
+    }
+    
+    #searchContainer {
+    display: flex; /* Use flexbox layout */
+    margin-bottom: 20px;
+   
+  }
+  
+  #searchInput {
+    flex-grow: 1; /* Allow the input to grow and fill available space */
+    padding: 10px;
+    margin-right: 10px; /* Adjust spacing between input and button */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  #searchButton {
+    padding: 10px;
+    background-color: #e9aa01;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  #searchButton:hover {
+    background-color: #d89b00;
+  }
+
+  .list-loader-spinner {
+    
+    border: 5px solid #f3f3f3 !important; /* Light grey */
+    border-top: 5px solid #e9aa01 !important; /* Blue */
+    border-radius: 50% !important;
+    width: 25px !important;
+    height: 25px !important;
+    animation: spin-loader-spinner 0.9s linear infinite !important;
+   
+    /* align loader in center of parent div */
+    margin: auto !important;
+    margin-top: 1em !important;
+  }
+
+  @keyframes spin-loader-spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  </style>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <!-- Leaflet MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  <!-- Papaparse JavaScript -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script> 
+  <!-- Leaflet JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <!-- Leaflet MarkerCluster JavaScript -->
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+  <div class="container">  
+    <div id="stockistList">
+      <div id="searchContainer">
+        <input type="text" id="searchInput" placeholder="Enter an address or postcode">
+        <button id="searchButton">Search</button>
+      </div>
+      <div id="stockistListResults">
+        <div class="list-loader-spinner"></div>
+      </div>
+    </div>
+    <div id="tabrificsMap"></div>
+  </div>
+  
+  <script>
+    var map = L.map('tabrificsMap').setView([56.4907, -4.2026], 6);
+    L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=', {
+        maxZoom: 19,
+        attribution: "\u003ca href=\"https://www.maptiler.com/copyright/\" target=\"_blank\"\u003e\u0026copy; MapTiler\u003c/a\u003e \u003ca href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\"\u003e\u0026copy; OpenStreetMap contributors\u003c/a\u003e",
+        crossOrigin: true
+    }).addTo(map);
+
+    var markers = L.markerClusterGroup({
+      iconCreateFunction: function(cluster) {
+        return L.divIcon({
+          html: '<div style="background-color: #e9aa01; color: #ffffff; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">' + cluster.getChildCount() + '</div>',
+          className: 'marker-cluster-custom',
+          iconSize: L.point(40, 40)
+        });
+      }
+    });
+  
+    function createPopupContent(stockist) {
+      var content = `<h2>${stockist.url ? `<a href="${stockist.url}" target="_blank">${stockist.name}</a>` : stockist.name}</h2>`;
+      content += `<p>${stockist.address}</p>`;
+      return content;
+    }
+  
+    function createStockistMarkers(stockists) {
+      stockists.forEach(stockist => {
+        var marker = L.marker([stockist.lat, stockist.lng])
+          .bindPopup(createPopupContent(stockist))
+          .on('add', function() {
+            if (this._icon) this._icon.classList.add("huechange");
+          });
+        markers.addLayer(marker);
+      });
+      map.addLayer(markers);
+      updateVisibleStockists();
+    }
+  
+    function updateVisibleStockists() {
+      var stockistListElement = document.getElementById('stockistListResults');
+      stockistListElement.innerHTML = ''; // Clear previous contents
+      var bounds = map.getBounds();
+      var visibleStockists = stockists.filter(stockist => bounds.contains(L.latLng(stockist.lat, stockist.lng)));
+  
+      visibleStockists.forEach(function(stockist) {
+        var element = document.createElement('div');
+        element.innerHTML = `<strong>${stockist.name}</strong><p>${stockist.address}</p>`;
+        element.classList.add("stockist-element");
+        stockistListElement.appendChild(element);
+        var divider = document.createElement('hr');
+        stockistListElement.appendChild(divider);
+      });
+  
+      if (visibleStockists.length === 0) {
+        stockistListElement.innerHTML = "Sorry, we didn't find any stores nearby";
+      }
+    }
+  
+    var stockists = []; // Initialize the stockists array
+    var publicSpreadsheetUrl = ""
+    
+    function init() {
+      Papa.parse(publicSpreadsheetUrl, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          stockists = results.data;
+          createStockistMarkers(stockists); // Create markers after data is loaded
+          updateVisibleStockists(); // Initial update of visible stockists
+        }
+      });
+    }
+  
+    window.addEventListener('DOMContentLoaded', init);
+  
+    map.on('moveend', updateVisibleStockists);
+  
+    
+    function performSearch() {
+    var query = document.getElementById('searchInput').value;
+    if (!query) {
+      map.setView([56.4907, -4.2026], 6)
+    }
+    if (query) {
+      var url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+  
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length > 0) {
+            var lat = data[0].lat;
+            var lon = data[0].lon;
+            map.setView([lat, lon], 12); // Update map view
+          } else {
+            alert('Location not found. Please try another search.');
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+  }
+    document.getElementById('searchInput').addEventListener('keypress', function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent the default form submission behavior
+      performSearch(); // Call the search function
+    }
+  });
+    document.getElementById('searchButton').addEventListener('click',performSearch);
+  </script>
