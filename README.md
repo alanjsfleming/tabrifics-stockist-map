@@ -20,8 +20,8 @@ The Google Sheet should have the following columns:
 
 Then publish the sheet to the web by going to File > Share > Publish to web
 
-Then choose Sheet1 instead of entire document, and choose Comma Separated Values (.csv) as the format.
+Choose Sheet1 instead of entire document, and choose Comma Separated Values (.csv) as the format.
 
-Copy this link and paste it between the ""s in the `publicSpreadsheetUrl` variable in the liquid element.
+Copy this link and replace YOURURLHERE in the `publicSpreadsheetUrl` variable in the liquid element.
 
-To keep stockist list up to date, just add or remove entries to the linked Google Sheet.
+To keep stockist list up to date, just add, edit or remove entries to the linked Google Sheet.
