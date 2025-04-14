@@ -1,6 +1,8 @@
 # Tabrifics Stockist Map
 Shopify Liquid Element snippet to display an interactive map of Tabrifics stockist locations. The map fetches stockist data from a publicly shared Google Sheet, allowing for easy updating of stockist locations.
 
+<img width="1453" alt="Screenshot 2025-04-14 at 21 39 08" src="https://github.com/user-attachments/assets/e000591a-5e81-4afd-a8ed-389acf956b39" />
+
 ## Features
 - Interactive map with markers for each stockist location
 - Real-time data fetched from a Google Sheet
