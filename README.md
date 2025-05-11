@@ -6,7 +6,7 @@ Shopify Liquid Element snippet to display an interactive map of Tabrifics stocki
 ## Features
 - Interactive map with markers for each stockist location
 - Real-time data fetched from a Google Sheet
-- Easy integratin into Shopify with Liquid
+- Easy integration into Shopify with Liquid
 - Can use custom map tiles.
 
 ## Setup
